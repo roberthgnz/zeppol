@@ -1,0 +1,43 @@
+{
+  "name": "zeppol",
+  "version": "1.0.0",
+  "description": "File validation library",
+  "jsdelivr": "./dist/index.global.js",
+  "browser": "./dist/index.global.js",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup --format esm,iife"
+  },
+  "keywords": [
+    "file",
+    "validation",
+    "library",
+    "mime"
+  ],
+  "author": "Roberth González",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roberthgnz/zeppol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/roberthgnz/zeppol/issues"
+  },
+  "homepage": "https://github.com/roberthgnz/zeppol#readme",
+  "license": "ISC",
+  "devDependencies": {
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3"
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "splitting": false,
+    "sourcemap": true,
+    "clean": true
+  }
+}
