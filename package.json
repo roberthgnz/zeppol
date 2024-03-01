@@ -10,7 +10,10 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup --format esm,iife"
+    "build": "tsup --format esm,iife",
+    "prepare": "npm run build",
+    "version": "git add -A src",
+    "postversion": "git push && git push --tags"
   },
   "keywords": [
     "file",
