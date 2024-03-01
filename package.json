@@ -1,6 +1,6 @@
 {
   "name": "zeppol",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "File validation library",
   "jsdelivr": "./dist/index.global.js",
   "browser": "./dist/index.global.js",
