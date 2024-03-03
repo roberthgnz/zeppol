@@ -1,36 +1,71 @@
-import * as audio from './validators/audio'
-import * as image from './validators/image'
-import * as video from './validators/video'
+import { getMimeStructure, isObjectRule } from './utils/file'
 
-type Audio = typeof audio
-type Image = typeof image
-type Video = typeof video
+import { AudioValidator } from './validators/audio'
+import { ImageValidator, } from './validators/image'
+import { VideoValidator } from './validators/video'
 
-type Validator = Record<string, Audio | Image | Video>
+export type Validator = {
+  audio: Omit<typeof AudioValidator, 'prototype'>
+  image: Omit<typeof ImageValidator, 'prototype'>
+  video: Omit<typeof VideoValidator, 'prototype'>
+}
 
-export const validators: Validator = { audio, image, video }
+export type ZValue = any
+export type ZValueRule = {
+  value: ZValue
+  message?: string
+}
 
-export const getMimeType = (file: File) => file.type.split('/')[0]
-
-export const checkFileValidity = async (file: File, rules: any[]) => {
-  const type = getMimeType(file)
-
-  const validations: any[] = []
-
-  const _validators = validators[type]
-  const _rules = (rules as any)[type]
-
-  for (const rule in _rules) {
-    const validator = _validators[rule]
-
-    if (validator) {
-      const { valid, message } = await validator(file, _rules[rule])
-
-      if (!valid) throw new Error(message)
-
-      validations.push(valid)
+export type ZRules<T extends Validator> = {
+  [K in keyof T]?: {
+    $params: {
+      [key in keyof T[K]]?: ZValue | ZValueRule
     }
+    $validators?: Record<string, (file: File) => Promise<any>>
   }
+}
 
-  return validations
+const VALIDATORS: Validator = { audio: AudioValidator, image: ImageValidator, video: VideoValidator }
+
+export const checkFileValidity = async (file: File, rules: ZRules<Validator>) => {
+  return new Promise(async (resolve, reject) => {
+    const { type } = getMimeStructure(file)
+
+    const options = rules[type as keyof Validator]
+
+    const _validators = VALIDATORS[type as keyof Validator]
+    const _customValidators = options?.$validators
+
+    for (const key in options.$params) {
+      const rule = options.$params[key as keyof typeof options.$params]
+
+      if (isObjectRule(rule)) {
+        const result = await _validators[key as keyof typeof options.$params](file, (rule as ZValueRule).value)
+
+        if (!result.valid) {
+          return reject((rule as ZValueRule)?.message || result.message)
+        }
+
+        continue
+      }
+
+      const result = await _validators[key as keyof typeof options.$params](file, rule)
+
+      if (!result.valid) {
+        return reject(result.message)
+      }
+    }
+
+    if (_customValidators) {
+      for (const key in _customValidators) {
+        const result = await _customValidators[key](file)
+
+        if (!result.valid) {
+          return reject(result.message)
+        }
+      }
+    }
+
+    resolve(true)
+  })
 }

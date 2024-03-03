@@ -19,6 +19,7 @@ File validation library
 ## Install
 
 ```bash
+pnpm add zeppol
 npm install zeppol
 ```
 
@@ -45,28 +46,86 @@ or
 ```
 
 ## How to use
-```js
-import { checkFileValidity } from 'zeppol'
 
-const file = 'your file from somewhere' // File object
-const fileRules = {
+### Basic usage
+```js
+import { type ZRules, type Validator, checkFileValidity} from 'zeppol'
+
+// Add ZRules if you want autocompletion and type checking
+const rules: ZRules<Validator> = {
     audio: {
-        maxDuration: 60,
-        minDuration: 10,
-        mime: ['audio/mpeg', 'audio/wav']
+        $params: {
+            minSize: {
+                value: 0,
+            },
+            maxSize: 1000000,
+            minDuration: 10,
+            maxDuration: {
+                value: 60,
+                // Custom error message
+                message: 'The file must be shorter than 60 seconds'
+            },
+            mime: ['audio/mpeg', 'wav']
+        },
+        // Custom validators
+        $validators: {
+            name(file) {
+                return {
+                    valid: file.name.length > 10,
+                    message: `File name must be longer than 10 characters`
+                }
+            }
+        }
     }
 }
 
-const onSubmit = async () => {
-  const result = await checkFileValidity(file, fileRules)
-  console.log(result)
-}
+const audioFile = document.getElementById('audio-file')
+
+audioFile.addEventListener('input', async ({ target }) => {
+    const file = target.files[0]
+    await checkFileValidity(file, rules)  // This will throw an error if the file is not valid
+})
 ```	
 
 The above example defines the following rules for the file:
 - The file must be an audio file
+- The file must have a size between 0 and 1000000 bytes
 - The file must have a duration between 10 and 60 seconds
 - The file must be of type audio/mpeg or audio/wav
+- The file name must be longer than 10 characters
 
+## Audio rules
+
+```ts
+mime: string | string[]
+minSize: number
+maxSize: number
+minDuration: number
+maxDuration: number
+```
+
+## Image rules
+
+```ts
+mime: string | string[]
+minSize: number
+maxSize: number
+minWidth: number
+maxWidth: number
+minHeight: number
+maxHeight: number
+```
+
+## Video rules
+
+```ts
+mime: string | string[]
+minSize: number
+maxSize: number
+minWidth: number
+maxWidth: number
+minHeight: number
+maxHeight: number
+```
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!

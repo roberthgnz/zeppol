@@ -6,12 +6,15 @@
   "browser": "./dist/index.global.js",
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist/**/*"
   ],
   "scripts": {
+    "dev": "tsup --watch --format esm",
+    "declaration": "tsc src/index.ts --emitDeclarationOnly --declaration --outDir dist",
     "build": "tsup --format esm,iife",
-    "prepare": "npm run build",
+    "prepare": "npm run build && npm run declaration",
     "version": "git add -A src",
     "postversion": "git push && git push --tags"
   },
@@ -19,7 +22,9 @@
     "file",
     "validation",
     "library",
-    "mime"
+    "mime",
+    "typescript",
+    "type"
   ],
   "author": "Roberth González",
   "repository": {
@@ -32,6 +37,7 @@
   "homepage": "https://github.com/roberthgnz/zeppol#readme",
   "license": "ISC",
   "devDependencies": {
+    "@types/node": "^20.11.24",
     "tsup": "^8.0.2",
     "typescript": "^5.3.3"
   },
@@ -40,7 +46,6 @@
       "src/index.ts"
     ],
     "splitting": false,
-    "sourcemap": true,
     "clean": true
   }
 }

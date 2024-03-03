@@ -1,13 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
-     <script type="module">
-        import { validators } from '../dist/index.mjs';
-        console.log(validators);
-     </script>
+
+    <div>
+        <div>
+            <label>Only images</label>
+            <input type="file" id="audio-file" />
+        </div>
+    </div>
+
+    <script type="module">
+        import { checkFileValidity } from '../dist/index.mjs';
+
+        const rules = {
+            image: {
+                $params: {
+                    minSize: {
+                        value: 0,
+                    },
+                    maxSize: 1000000,
+                    mime: ['image/png', 'jpeg']
+                },
+                // Custom validators
+                $validators: {
+                    foo(file) {
+                        return {
+                            valid: file.size > 1,
+                            message: `File size should be less than ${1} bytes`
+                        }
+                    }
+                }
+            }
+        }
+
+        const audioFile = document.getElementById('audio-file')
+
+        audioFile.addEventListener('input', async ({ target }) => {
+            const file = target.files[0]
+            await checkFileValidity(file, rules)
+        })
+    </script>
 </body>
