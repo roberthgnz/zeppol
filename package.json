@@ -45,7 +45,7 @@
     "entry": [
       "src/index.ts"
     ],
-    "splitting": false,
-    "clean": true
+    "clean": true,
+    "globalName": "Zeppol"
   }
 }
